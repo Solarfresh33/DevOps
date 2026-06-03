@@ -1,0 +1,12 @@
+# Binaire compilé
+/wik-dps-tp01
+/ping-server
+*.exe
+
+# Fichiers de test/coverage
+*.out
+
+# Divers OS / éditeurs
+.DS_Store
+.idea/
+.vscode/
