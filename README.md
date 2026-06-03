@@ -1,4 +1,4 @@
-# WIK-DPS-TP01 — Ping API
+# WIK-DPS-TP01 : Ping API
 
 Petite API HTTP écrite en **Go**, sans aucune dépendance externe (uniquement la
 bibliothèque standard `net/http`).
