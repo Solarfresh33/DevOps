@@ -133,3 +133,32 @@ Les rapports complets sont disponibles dans `trivy-single.txt` et `trivy-multi.t
 Les vulnérabilités de l'image multi-stage proviennent uniquement du **Go stdlib**
 embarqué dans le binaire (pas de paquets OS). Passer à Go 1.24+ résoudrait la CVE
 critique `CVE-2025-68121` (crypto/tls).
+
+## Bonus — Image Docker minimale (< 500 Bytes)
+
+> **Le bonus est appliqué sur ce TP (TP2).**
+
+Sources dans [`bonus/`](bonus/) :
+
+| Fichier | Rôle |
+|---------|------|
+| `bonus/tiny.asm` | Binaire ELF64 x86-64 écrit à la main en assembleur NASM |
+| `bonus/Dockerfile` | Multi-stage : compile avec NASM, copie dans `FROM scratch` |
+
+### Mesures
+
+| Métrique | Taille |
+|----------|--------|
+| Binaire `/tiny` dans l'image | **189 bytes** |
+| Layer compressé (stockage registre) | **216 bytes** |
+| Image OCI totale (`docker images`) | ~1.4 kB |
+
+Le binaire ne contient **aucune libc, aucun runtime, aucun OS** : uniquement
+l'en-tête ELF64 (64 B) + l'en-tête de segment PT_LOAD (56 B) + le code machine
+(69 B). Il utilise directement les syscalls Linux `SYS_WRITE` et `SYS_EXIT`,
+avec la pile du kernel comme buffer de conversion entier→ASCII.
+
+```bash
+docker build -t tiny-counter bonus/
+docker run --rm tiny-counter   # affiche 0 à 10000
+```
