@@ -1,4 +1,4 @@
-# WIK-DPS-TP02 : Ping API – Docker
+# WIK-DPS-TP02 : Ping API & Docker
 
 Petite API HTTP écrite en **Go**, sans aucune dépendance externe (uniquement la
 bibliothèque standard `net/http`).
