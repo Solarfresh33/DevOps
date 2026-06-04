@@ -1,0 +1,21 @@
+FROM golang:1.22-alpine
+
+WORKDIR /app
+
+# Copy dependency files first (cache layer — only invalidated when go.mod/go.sum change)
+COPY go.mod ./
+
+RUN go mod download
+
+# Copy source and build (invalidated only when source changes)
+COPY *.go ./
+
+RUN go build -o server .
+
+# Drop to non-root user for runtime
+RUN adduser -D -u 10001 appuser
+USER appuser
+
+EXPOSE 8080
+
+CMD ["./server"]

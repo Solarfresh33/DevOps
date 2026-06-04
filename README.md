@@ -1,4 +1,4 @@
-# WIK-DPS-TP01 : Ping API
+# WIK-DPS-TP02 : Ping API – Docker
 
 Petite API HTTP écrite en **Go**, sans aucune dépendance externe (uniquement la
 bibliothèque standard `net/http`).
@@ -87,3 +87,49 @@ Les tests unitaires utilisent uniquement la stdlib (`net/http/httptest`) :
 ```bash
 go test -v ./...
 ```
+
+## Docker
+
+### Image single-stage (`Dockerfile.single`)
+
+Basée sur `golang:1.22-alpine`. Compile et exécute dans le même conteneur.
+
+```bash
+docker build -f Dockerfile.single -t wik-dps-tp02:single .
+docker run -p 8080:8080 wik-dps-tp02:single
+```
+
+### Image multi-stage (`Dockerfile`)
+
+Stage `builder` : `golang:1.22-alpine` — compile un binaire statique.  
+Stage final : `scratch` — contient **uniquement** le binaire (pas de sources, pas de toolchain).
+
+```bash
+docker build -t wik-dps-tp02:multi .
+docker run -p 8080:8080 wik-dps-tp02:multi
+```
+
+| Image  | Taille |
+|--------|--------|
+| single | ~448 MB |
+| multi  | ~7 MB  |
+
+Les deux images s'exécutent avec un utilisateur non-root (`appuser` / `nobody`).
+
+### Optimisation des layers
+
+`go.mod` est copié et `go mod download` lancé **avant** les sources : le layer de
+dépendances n'est recalculé que si `go.mod` change, pas à chaque modification de code.
+
+### Scan de sécurité (Trivy)
+
+Les rapports complets sont disponibles dans `trivy-single.txt` et `trivy-multi.txt`.
+
+| Image  | CRITICAL | HIGH | MEDIUM | LOW | UNKNOWN |
+|--------|----------|------|--------|-----|---------|
+| single | 2        | 19   | 14     | 21  | 0       |
+| multi  | 1        | 14   | 23     | 2   | 3       |
+
+Les vulnérabilités de l'image multi-stage proviennent uniquement du **Go stdlib**
+embarqué dans le binaire (pas de paquets OS). Passer à Go 1.24+ résoudrait la CVE
+critique `CVE-2025-68121` (crypto/tls).
