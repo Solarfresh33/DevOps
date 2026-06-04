@@ -101,8 +101,8 @@ docker run -p 8080:8080 wik-dps-tp02:single
 
 ### Image multi-stage (`Dockerfile`)
 
-Stage `builder` : `golang:1.22-alpine` — compile un binaire statique.  
-Stage final : `scratch` — contient **uniquement** le binaire (pas de sources, pas de toolchain).
+Stage `builder` : `golang:1.22-alpine` compile un binaire statique.  
+Stage final : `scratch` contient **uniquement** le binaire (pas de sources, pas de toolchain).
 
 ```bash
 docker build -t wik-dps-tp02:multi .
